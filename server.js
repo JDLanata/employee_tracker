@@ -2,6 +2,10 @@
 //recomemend to just write one large file
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const cTable = require('console.table');
+
+
+
 const db = mysql.createConnection({
     host: 'localhost',
 
@@ -15,23 +19,24 @@ const db = mysql.createConnection({
 
 
 const start = () => {
-    inquirer.prompt([
+    inquirer.prompt(
         {
             type: 'list',
             name: 'question',
             choices: ['Veiw All Departments', 'Veiw All Roles', 'Veiw all Employees', 'Add A Role', 'Add An Employee', 'Add A Department', 'Update An Employee Role', 'Quit']
         }
-    ]).then(answers => {
+    ).then(answers => {
         switch (answers.question) {
             case 'Veiw All Departments':
                 console.log('Veiw All Departments');
                 viewDepartments();
                 break;
+
             case 'Veiw All Roles':
                 console.log('Veiw All Roles');
                 viewRoles();
                 break;
-                break;
+
             case 'Veiw All Employees':
                 console.log('Veiw All Employees');
                 viewEmployees();
@@ -51,6 +56,7 @@ const start = () => {
                 console.log('Add A Department');
                 addDepartment();
                 break;
+
             case 'Update An Employee Role':
                 console.log('Update An Employee Role');
                 updateEmployee();
@@ -71,18 +77,41 @@ function viewDepartments() {
         if (err) {
             throw err;
         } else {
-            console.log(data)
+            console.table(data)
             start();
         }
 
     })//end of query
 } //end of veiwDepartments
+
+function departChoice() {
+    const depart = db.query('SELECT * FROM departments', (err, data) => {
+        if (err) {
+            throw err;
+        } else {
+            console.table(data)
+        }
+
+    });
+
+
+    console.log(depart)
+
+    return depart;
+
+
+
+};//end of departChoice
+
+
+
+
 function viewRoles() {
     db.query('SELECT * FROM roles', (err, data) => {
         if (err) {
             throw err;
         } else {
-            console.log(data)
+            console.table(data)
             start();
         }
 
@@ -93,7 +122,7 @@ function viewEmployees() {
         if (err) {
             throw err;
         } else {
-            console.log(data)
+            console.table(data)
             start();
         }
 
@@ -102,27 +131,35 @@ function viewEmployees() {
 
 
 
-
-
-
 function addRole() {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'title',
-            message: 'What is the Roles title?'
-        },
-        {
-            type: 'input',
-            name: 'salary',
-            message: 'What is the salary for the role?'
-        },
-        {
-            type: 'input',
-            name: 'department',
-            message: "What is the department?",
-        }
-    ])//end of Inquirer Prompt
+    db.query('SELECT * FROM departments', (err, data) => {
+        if (err)
+            throw err;
+
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: 'What is the Roles title?'
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'What is the salary for the role?'
+            },
+            {
+                type: 'list',
+                name: 'department',
+                message: "What is the department?",
+                choices: function () {
+                    const depart = data.map(choice => choice.name)
+                    return depart;
+                }
+            }
+
+        ])//end of Inquirer Prompt
+   
+
         .then((data) => {
             db.query('INSERT INTO roles (title,salary,department_id) VALUES (?,?,?)', [data.title, data.salary, data.department], (err, data) => {
                 if (err) {
@@ -132,8 +169,9 @@ function addRole() {
                     start();
                 }
 
-            })//end of query
+            })//end of query2
         })//end of .Then
+    })//end query1
 }//end of addManager
 
 function addEmployee() {
@@ -190,10 +228,20 @@ function addDepartment() {
                     console.log(data)
                     start();
                 }
-        })//end of query
-    })//end of .Then
+            })//end of query
+        })//end of .Then
 
 }//end of addDeparment
+
+
+
+function updateEmployee() {
+
+    db.end();
+
+}//end of updateEmployee
+
+
 
 function quit() {
     console.log('Have a good day!')
