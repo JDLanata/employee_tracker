@@ -1,5 +1,3 @@
-// referecec team_profile HW for switch prompts
-//recomemend to just write one large file
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
@@ -69,8 +67,8 @@ const start = () => {
     })//end of .then switch case
 }//end of start function
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function viewDepartments() {
     db.query('SELECT * FROM departments', (err, data) => {
@@ -80,43 +78,52 @@ function viewDepartments() {
             console.table(data)
             start();
         }
-
     })//end of query
 } //end of veiwDepartments
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function viewRoles() {
-    db.query('SELECT * FROM roles', (err, data) => {
+    db.query(`SELECT roles.title AS Titles,
+    roles.salary AS Salary,
+    departments.name AS Department
+FROM roles
+JOIN departments 
+ON roles.department_id = departments.id ;`, (err, data) => {
         if (err) {
             throw err;
         } else {
             console.table(data)
             start();
         }
-
     })//end of query
 } //end of veiwRoles
 
 
-///////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function viewEmployees() {
-    db.query('SELECT * FROM employees JOIN roles ON employees.role_id = roles.title', (err, data) => {
+    db.query(`SELECT  CONCAT(employees.first_name," ",employees.last_name) AS Employees, 
+    roles.title AS Titles,
+    roles.salary AS Salary,
+    departments.name AS Department,
+    employees.manager_id AS Manager
+FROM employees
+JOIN roles ON employees.role_id = roles.id
+JOIN departments ON roles.department_id = departments.id ;`, (err, data) => {
         if (err) {
             throw err;
         } else {
             console.table(data)
             start();
         }
-
     })//end of query
 } //end of veiwEmployees
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 function addRole() {
@@ -163,8 +170,8 @@ function addRole() {
     })//end query1
 }//end of addManager
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 function addEmployee() {
@@ -206,15 +213,13 @@ function addEmployee() {
                     name: 'manager',
                     message: 'Who is their manager?',
                     choices: function () {
-                        const lead = data1.map(({ id, first_name,last_name }) => ({
+                        const lead = data1.map(({ id, first_name, last_name }) => ({
                             name: `${first_name} ${last_name}`,
                             value: id
                         }))
                         return lead;
                     }
-
                 }//end choices function
-
             ])//end of Inquirer Prompt
                 .then((data) => {
                     db.query('INSERT INTO employees (first_name,last_name,role_id,manager_id) VALUES (?,?,?,?)', [data.first_name, data.last_name, data.role, data.manager], (err, data) => {
@@ -224,17 +229,15 @@ function addEmployee() {
                             // console.log(data)
                             start();
                         }
-
                     })//end of query2
-
                 })//end of .Then
         })//end of query1
     })//end of queryA
 }//end of addEmployee
 
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function addDepartment() {
     inquirer.prompt([
@@ -245,11 +248,11 @@ function addDepartment() {
         }
     ])//end of Inquirer Prompt
         .then((data) => {
-            db.query('INSERT INTO department ((name) VALUES (?)', data.name, (err, data) => {
+            db.query('INSERT INTO departments (name) VALUES (?)', data.name, (err, data) => {
                 if (err) {
                     throw err;
                 } else {
-                    console.log(data)
+                    // console.log(data)
                     start();
                 }
             })//end of query
@@ -258,8 +261,8 @@ function addDepartment() {
 }//end of addDeparment
 
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 function updateEmployee() {
@@ -267,19 +270,16 @@ function updateEmployee() {
     db.query('SELECT * FROM employees', (err, data1) => {//queryA start
         if (err)
             throw err;
-
         db.query('SELECT * FROM  roles', (err, data) => {//query1 start
             if (err)
                 throw err;
-
-
             inquirer.prompt([
                 {
                     type: 'list',
                     name: 'name',
                     message: `Who's role would you like to update?`,
                     choices: function () {
-                        const update = data1.map(({ id, first_name,last_name }) => ({
+                        const update = data1.map(({ id, first_name, last_name }) => ({
                             name: `${first_name} ${last_name}`,
                             value: id
                         }))
@@ -298,33 +298,27 @@ function updateEmployee() {
                         return role;
                     }//end choices function
                 }
-                
-
             ])//end of Inquirer Prompt
                 .then((data) => {
-                    db.query('UPDATE employees SET role_id=? WHERE employees.id=? ', [data.role,data.name], (err, data) => {
+                    db.query('UPDATE employees SET role_id=? WHERE employees.id=? ', [data.role, data.name], (err, data) => {
                         if (err) {
                             throw err;
                         } else {
                             // console.log(data)
                             start();
                         }
-
                     })//end of query2
-
                 })//end of .Then
         })//end of query1
     })//end of queryA
-
 }//end of updateEmployee
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function quit() {
     console.log('Have a good day!')
     db.end();
-
 }//end of quit
 
 

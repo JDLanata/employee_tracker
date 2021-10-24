@@ -16,6 +16,8 @@ VALUES("Sales Lead", 10000, 3),
 
 INSERT INTO employees (first_name,last_name,role_id,manager_id)
 VALUES("Zwei","Cannon",1,NULL),
-      ("Romanof","Agent", 4,1),
+      ("Romanof","Agent", 4,4),
+      ("John","Doe", 2,NULL),
+      ("Midna","Twilight", 4,1),
       ("Link","Knight", 3,NULL);
 
