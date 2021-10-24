@@ -23,7 +23,7 @@ const start = () => {
         {
             type: 'list',
             name: 'question',
-            choices: ['Veiw All Departments', 'Veiw All Roles', 'Veiw all Employees', 'Add A Role', 'Add An Employee', 'Add A Department', 'Update An Employee Role', 'Quit']
+            choices: ['Veiw All Departments', 'Veiw All Roles', 'Veiw All Employees', 'Add A Role', 'Add An Employee', 'Add A Department', 'Update An Employee Role', 'Quit']
         }
     ).then(answers => {
         switch (answers.question) {
@@ -39,7 +39,8 @@ const start = () => {
 
             case 'Veiw All Employees':
                 console.log('Veiw All Employees');
-                viewEmployees();
+                // viewEmployees();
+                viewRoles();
                 break;
 
             case 'Add A Role':
@@ -83,27 +84,6 @@ function viewDepartments() {
 
     })//end of query
 } //end of veiwDepartments
-
-function departChoice() {
-    const depart = db.query('SELECT * FROM departments', (err, data) => {
-        if (err) {
-            throw err;
-        } else {
-            console.table(data)
-        }
-
-    });
-
-
-    console.log(depart)
-
-    return depart;
-
-
-
-};//end of departChoice
-
-
 
 
 function viewRoles() {
@@ -152,20 +132,21 @@ function addRole() {
                 name: 'department',
                 message: "What is the department?",
                 choices: function () {
-                    const depart = data.map(choice => choice.name)
+                    const depart = data.map(({id, name}) => ({
+                        name: name,
+                        value: id
+                    }))
                     return depart;
                 }
             }
 
         ])//end of Inquirer Prompt
-   
-
         .then((data) => {
             db.query('INSERT INTO roles (title,salary,department_id) VALUES (?,?,?)', [data.title, data.salary, data.department], (err, data) => {
                 if (err) {
                     throw err;
                 } else {
-                    console.log(data)
+                    // console.log(data)
                     start();
                 }
 
