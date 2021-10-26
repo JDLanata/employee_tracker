@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 
 
-
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -105,13 +104,14 @@ ON roles.department_id = departments.id ;`, (err, data) => {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function viewEmployees() {
-    db.query(`SELECT  CONCAT(employees.first_name," ",employees.last_name) AS Employees, 
+    db.query(`SELECT  CONCAT(e.first_name," ",e.last_name) AS Employees, 
     roles.title AS Titles,
     roles.salary AS Salary,
     departments.name AS Department,
-    employees.manager_id AS Manager
-FROM employees
-JOIN roles ON employees.role_id = roles.id
+    CONCAT(m.first_name," ",m.last_name)AS Manager
+FROM employees e
+LEFT JOIN employees m ON m.id = e.manager_id
+JOIN roles ON e.role_id = roles.id
 JOIN departments ON roles.department_id = departments.id ;`, (err, data) => {
         if (err) {
             throw err;
